@@ -17,6 +17,15 @@ let isBookmarkBarOpen = true;
 let HISTORY_FILE;
 let BOOKMARKS_FILE;
 
+let pipView = null;
+let isPipOpen = false;
+let pipBounds = {
+  width: 480,
+  height: 270,
+  x: null,
+  y: null
+};
+
 function ensureFile(file, fallback) {
   if (!fs.existsSync(file)) {
     fs.writeFileSync(file, JSON.stringify(fallback, null, 2));
@@ -34,17 +43,37 @@ function resizeView() {
   const sidebarWidth = isSettingsOpen ? 320 : 0;
   const topOffset = isBookmarkBarOpen ? 130 : 95; 
 
+  const availableWidth = bounds.width - sidebarWidth;
+  const availableHeight = bounds.height - topOffset;
+
   active.view.setBounds({
     x: 0,
     y: topOffset,
-    width: bounds.width - sidebarWidth,
-    height: bounds.height - topOffset
+    width: availableWidth,
+    height: availableHeight
   });
+
+  if (isPipOpen && pipView) {
+    if (pipBounds.x === null || pipBounds.y === null) {
+      pipBounds.x = availableWidth - pipBounds.width - 20;
+      pipBounds.y = bounds.height - pipBounds.height - 20;
+    }
+
+    const clampedX = Math.max(0, Math.min(pipBounds.x, availableWidth - pipBounds.width));
+    const clampedY = Math.max(topOffset, Math.min(pipBounds.y, bounds.height - pipBounds.height));
+
+    pipView.setBounds({
+      x: clampedX,
+      y: clampedY,
+      width: pipBounds.width,
+      height: pipBounds.height
+    });
+  }
 }
 
 function sendTabs() {
   if (!mainWindow) return;
-  mainWindow.webContents.send('tabs-updated', tabs.map(tab => ({ id: tab.id, title: tab.title, url: tab.url })), activeTabId);
+  mainWindow.webContents.send('tabs-updated', tabs.map(tab => ({ id: tab.id, title: tab.title, url: tab.url, favicon: tab.favicon || '' })), activeTabId);
 }
 
 function addHistory(url, title) {
@@ -110,7 +139,7 @@ function createTab(url = 'file://' + path.join(__dirname, 'newtab.html')) {
   registerContextMenu(view.webContents);
 
   const id = ++tabCounter;
-  const tab = { id, view, title: '新しいタブ', url };
+  const tab = { id, view, title: '新しいタブ', url, favicon: '' };
   tabs.push(tab);
 
   if (activeTabId !== null) {
@@ -129,8 +158,18 @@ function createTab(url = 'file://' + path.join(__dirname, 'newtab.html')) {
     sendTabs();
   });
 
+  view.webContents.on('page-favicon-updated', (_, favicons) => {
+    if (favicons && favicons.length > 0) {
+      tab.favicon = favicons[0]; 
+      sendTabs();
+    }
+  });
+
   view.webContents.on('did-navigate', (_, currentUrl) => {
     tab.url = currentUrl;
+    if (!currentUrl.startsWith("file://")) {
+      tab.favicon = ''; 
+    }
     addHistory(currentUrl, tab.title);
     sendTabs();
   });
@@ -226,7 +265,7 @@ ipcMain.handle('goHome', () => { const active = getActiveTab(); if (active) acti
 ipcMain.handle('newTab', () => { createTab(); });
 ipcMain.handle('switchTab', (_, id) => { switchTab(id); });
 ipcMain.handle('closeTab', (_, id) => { closeTab(id); });
-ipcMain.handle('getTabs', () => tabs.map(tab => ({ id: tab.id, title: tab.title, url: tab.url })));
+ipcMain.handle('getTabs', () => tabs.map(tab => ({ id: tab.id, title: tab.title, url: tab.url, favicon: tab.favicon || '' })));
 
 ipcMain.handle('set-sidebar-status', (_, isOpen) => {
   isSettingsOpen = isOpen;
@@ -240,35 +279,66 @@ ipcMain.handle('set-bookmark-bar-status', (_, isOpen) => {
   return true;
 });
 
-/* Bookmarks & History */
 ipcMain.handle('addBookmark', () => {
   const active = getActiveTab();
   if (!active) return false;
+  
   const bookmarks = loadJSON(BOOKMARKS_FILE);
-  bookmarks.push({ title: active.view.webContents.getTitle(), url: active.view.webContents.getURL() });
+  const currentUrl = active.view.webContents.getURL();
+  const currentTitle = active.view.webContents.getTitle();
+
+  if (bookmarks.some(b => b.url === currentUrl)) {
+    return false; 
+  }
+
+  bookmarks.push({ title: currentTitle, url: currentUrl });
   saveJSON(BOOKMARKS_FILE, bookmarks);
   return true;
 });
+
 ipcMain.handle('getBookmarks', () => loadJSON(BOOKMARKS_FILE));
-ipcMain.handle('removeBookmark', (_, url) => {
+
+function executeRemove(url) {
+  if (!url) return;
   const bookmarks = loadJSON(BOOKMARKS_FILE);
-  saveJSON(BOOKMARKS_FILE, bookmarks.filter(b => b.url !== url));
+  
+  const index = bookmarks.findIndex(b => b.url === url);
+  if (index !== -1) {
+    bookmarks.splice(index, 1); 
+    saveJSON(BOOKMARKS_FILE, bookmarks);
+  }
+}
+
+ipcMain.handle('removeBookmark', (_, url) => {
+  if (!url) return false;
+  executeRemove(url);
   return true;
 });
+
 ipcMain.handle('getHistory', () => loadJSON(HISTORY_FILE));
 ipcMain.handle('clearHistory', () => { saveJSON(HISTORY_FILE, []); return true; });
 
-// パッケージ（.exe）環境用のブックマーク消去確認ダイアログ
-ipcMain.handle('confirm-delete-bookmark', async (_, title) => {
-  const result = await dialog.showMessageBox(mainWindow, {
-    type: 'question',
-    buttons: ['削除する', 'キャンセル'],
-    defaultId: 1,
-    title: 'ブックマークの削除',
-    message: `ブックマーク「${title}」を削除しますか？`,
-    cancelId: 1
-  });
-  return result.response === 0;
+ipcMain.on('open-bookmark-context-menu', (event, bookmarkData) => {
+  const menu = new Menu();
+  menu.append(new MenuItem({
+    label: `「${bookmarkData.title || 'ブックマーク'}」を削除`,
+    click: async () => {
+      const result = await dialog.showMessageBox(mainWindow, {
+        type: 'question',
+        buttons: ['削除する', 'キャンセル'],
+        defaultId: 1,
+        title: 'ブックマークの削除',
+        message: `ブックマーク「${bookmarkData.title}」を削除しますか？`,
+        cancelId: 1
+      });
+      
+      if (result.response === 0) {
+        executeRemove(bookmarkData.url);
+        event.reply('bookmark-deleted-success');
+      }
+    }
+  }));
+  menu.popup({ window: mainWindow });
 });
 
 ipcMain.on('open-tab-context-menu', (event, tabId) => {
@@ -304,6 +374,59 @@ ipcMain.on('window-maximize', () => {
 ipcMain.on('window-close', () => { if (mainWindow) mainWindow.close(); });
 
 ipcMain.on('close-app', () => { app.quit(); });
+
+ipcMain.handle('toggle-pip', (_, url) => {
+  if (!isPipOpen) {
+    pipView = new BrowserView({
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+    mainWindow.addBrowserView(pipView);
+    registerContextMenu(pipView.webContents);
+
+    const targetUrl = url || 'https://www.youtube.com';
+    pipView.webContents.loadURL(targetUrl);
+
+    isPipOpen = true;
+  } else {
+    if (pipView) {
+      mainWindow.removeBrowserView(pipView);
+      pipView.webContents.destroy();
+      pipView = null;
+    }
+    isPipOpen = false;
+  }
+  resizeView();
+  return isPipOpen;
+});
+
+ipcMain.handle('close-pip', () => {
+  if (pipView) {
+    mainWindow.removeBrowserView(pipView);
+    pipView.webContents.destroy();
+    pipView = null;
+    isPipOpen = false;
+    resizeView();
+  }
+  return true;
+});
+
+ipcMain.handle('move-pip', (_, { x, y }) => {
+  if (!pipView) return;
+  pipBounds.x = x;
+  pipBounds.y = y;
+  resizeView();
+});
+
+ipcMain.handle('resize-pip', (_, { width, height }) => {
+  if (!pipView) return;
+  pipBounds.width = Math.max(280, Math.min(width, 1200));
+  pipBounds.height = Math.max(160, Math.min(height, 800));
+  resizeView();
+});
+
 autoUpdater.on('update-available', () => { dialog.showMessageBox({ type: 'info', title: 'アップデート', message: '新しいバージョンをダウンロードしています' }); });
 autoUpdater.on('update-downloaded', () => {
   dialog.showMessageBox({ type: 'question', buttons: ['今すぐ再起動', 'あとで'], defaultId: 0, message: 'アップデートが完了しました。再起動しますか？' }).then(result => {
