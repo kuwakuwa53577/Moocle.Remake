@@ -15,7 +15,6 @@ body {
   transition: background-color 0.2s, color 0.2s;
 }
 
-/* --- テーマ別ベースカラー設定 --- */
 body.theme-dark {
   background-color: #080808;
   color: #e0e0e0;
@@ -25,7 +24,6 @@ body.theme-light {
   color: #1e1e1e;
 }
 
-/* アプリ全体の最背面に設置するカスタム背景 */
 #browser-bg {
   position: absolute;
   top: 0;
@@ -39,7 +37,7 @@ body.theme-light {
 }
 
 /* =================================================================
-   2. フレームレスウィンドウのドラッグ・ノードラッグ制御
+   2. フレームレスウィンドウ制御
    ================================================================= */
 #window-drag-area {
   position: absolute;
@@ -57,7 +55,7 @@ body.theme-light {
 }
 
 /* =================================================================
-   3. ヘッダー構造（テーマ別配色）
+   3. ヘッダー構造
    ================================================================= */
 #browser-header {
   position: relative;
@@ -67,7 +65,6 @@ body.theme-light {
   transition: background-color 0.2s, border-color 0.2s;
 }
 
-/* ダークモード時のヘッダー */
 body.theme-dark #browser-header {
   background-color: rgba(22, 22, 22, 0.85);
   backdrop-filter: blur(12px);
@@ -78,7 +75,6 @@ body.theme-dark .header-bottom-row {
   background-color: rgba(28, 28, 28, 0.9);
 }
 
-/* 新規ライトモード時のヘッダー（クリーンで洗練された白とライトグレー） */
 body.theme-light #browser-header {
   background-color: rgba(228, 230, 235, 0.85);
   backdrop-filter: blur(12px);
@@ -89,7 +85,6 @@ body.theme-light .header-bottom-row {
   background-color: rgba(255, 255, 255, 0.95);
 }
 
-/* 上段・下段のレイアウトサイズ */
 .header-top-row {
   position: relative;
   height: 45px;
@@ -108,7 +103,7 @@ body.theme-light .header-bottom-row {
 }
 
 /* =================================================================
-   4. ウィンドウ操作ボタン (Chrome風)
+   4. ウィンドウ操作ボタン
    ================================================================= */
 #window-controls {
   position: absolute;
@@ -133,22 +128,19 @@ body.theme-light .header-bottom-row {
   cursor: pointer;
 }
 
-/* ダークモード時のボタンホバー */
 body.theme-dark .win-btn { color: #999999; }
 body.theme-dark .win-btn:hover { background-color: #2b2b2b; color: #ffffff; }
 
-/* ライトモード時のボタンホバー */
 body.theme-light .win-btn { color: #555555; }
 body.theme-light .win-btn:hover { background-color: #d0d3da; color: #000000; }
 
-/* 閉じるボタンの共通処理（常に赤） */
 .win-btn-close:hover {
   background-color: #e81123 !important;
   color: #ffffff !important;
 }
 
 /* =================================================================
-   5. タブバー＆タブデザイン（ライトモード対応）
+   5. タブバー＆タブデザイン
    ================================================================= */
 #tabs-container {
   display: flex;
@@ -170,7 +162,6 @@ body.no-tab-scroll #tabs::-webkit-scrollbar { display: none; }
 #tabs::-webkit-scrollbar { height: 4px; }
 #tabs::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
 
-/* タブ単体のスタイル */
 .tab {
   display: flex;
   align-items: center;
@@ -184,7 +175,6 @@ body.no-tab-scroll #tabs::-webkit-scrollbar { display: none; }
   transition: background-color 0.15s, color 0.15s;
 }
 
-/* ダークモードのタブ配色 */
 body.theme-dark .tab {
   background-color: #161616;
   border: 1px solid #252525;
@@ -198,7 +188,6 @@ body.theme-dark .tab.active {
   border-top: 2px solid #555555;
 }
 
-/* 新ライトモードのタブ配色 */
 body.theme-light .tab {
   background-color: #dadce0;
   border: 1px solid #bdc1c6;
@@ -208,13 +197,12 @@ body.theme-light .tab {
 body.theme-light .tab:hover { background-color: #e3e5e8; color: #3c4043; }
 body.theme-light .tab.active {
   background-color: #ffffff;
-  color: #1a73e8; /* アクティブなアクセントブルー */
+  color: #1a73e8;
   border-top: 2px solid #1a73e8;
   border-left-color: #bdc1c6;
   border-right-color: #bdc1c6;
 }
 
-/* 形状スキン */
 body.chrome-tabs .tab { border-radius: 8px 8px 0 0; margin-top: 4px; }
 body.square-tabs .tab { border-radius: 0; }
 
@@ -353,15 +341,15 @@ body.theme-light .bookmark-item:hover { background-color: #f1f3f4; color: #20212
   padding: 6px 0;
 }
 body.theme-dark #historyPopup { background-color: #161616; border: 1px solid #333333; }
-body.theme-dark .history-item { color: #cccccc; }
+body.theme-dark .history-item { color: #cccccc; padding: 8px 12px; cursor: pointer; }
 body.theme-dark .history-item:hover { background-color: #252525; color: #ffffff; }
 
 body.theme-light #historyPopup { background-color: #ffffff; border: 1px solid #dee1e6; }
-body.theme-light .history-item { color: #3c4043; }
+body.theme-light .history-item { color: #3c4043; padding: 8px 12px; cursor: pointer; }
 body.theme-light .history-item:hover { background-color: #f1f3f4; color: #1a73e8; }
 
 /* =================================================================
-   8. 設定サイドバー (右スライドイン)
+   8. 設定サイドバー
    ================================================================= */
 #settingsSidebar {
   position: absolute;
@@ -422,31 +410,78 @@ body.theme-light .danger-btn { background-color: #fce8e6; border: 1px solid #f9a
 body.theme-light .danger-btn:hover { background-color: #fbe5e2; }
 
 /* =================================================================
-   9. ★ダイナミックフォント切り替え（emベースのスマート設計）
+   9. ダイナミックフォントサイズ調整
    ================================================================= */
-/* 全体の文字の大きさと、それに伴う高さやアイコンサイズのバランスを調整します */
-
-/* --- 【小】サイズ指定時 --- */
 body.font-small { font-size: 11px; }
 body.font-small .tab { height: 30px; font-size: 11px; }
 body.font-small #urlbar { font-size: 11px; height: 28px; }
 body.font-small .nav-btn { width: 28px; height: 28px; font-size: 14px; }
 body.font-small .header-bottom-row { height: 42px; }
 
-/* --- 【中】サイズ指定時（標準） --- */
 body.font-medium { font-size: 13px; }
 body.font-medium .tab { height: 35px; font-size: 13px; }
 body.font-medium #urlbar { font-size: 13px; height: 32px; }
 body.font-medium .nav-btn { width: 32px; height: 32px; font-size: 16px; }
 body.font-medium .header-bottom-row { height: 50px; }
 
-/* --- 【大】サイズ指定時 --- */
 body.font-large { font-size: 15px; }
 body.font-large .tab { height: 40px; font-size: 15px; min-width: 160px; }
 body.font-large #urlbar { font-size: 15px; height: 36px; }
 body.font-large .nav-btn { width: 36px; height: 36px; font-size: 18px; }
 body.font-large .header-bottom-row { height: 56px; }
 
-/* ユーティリティ */
 .hidden { display: none !important; }
 #content-area { flex: 1; position: relative; }
+
+/* =================================================================
+   10. PIP コントロールパネル
+   ================================================================= */
+#pip-control-overlay {
+  position: absolute;
+  z-index: 999;
+  pointer-events: auto;
+}
+
+.pip-window {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  height: 180px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+
+  /* サイズ変更を許可する設定 */
+  resize: both;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 120px;
+}
+
+.pip-header {
+  padding: 8px;
+  background: #2d2d2d;
+  cursor: move; /* 移動可能であることを示すカーソル */
+  user-select: none;
+}
+
+.pip-size-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.pip-size-controls button {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.pip-size-controls button:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
