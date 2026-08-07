@@ -2,32 +2,23 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>MCBrowser</title>
+  <title>Moocle</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<!-- 初期状態でテーマクラスとフォントサイズクラスを付与しておきます -->
 <body class="theme-dark chrome-tabs font-medium">
 
-  <!-- ブラウザ全体の最背面に表示する壁紙画像用コンテナ -->
   <div id="browser-bg"></div>
 
-  <!-- ブラウザのヘッダー領域 -->
   <header id="browser-header">
     
-    <!-- ウィンドウをドラッグして移動させるための透明なエリア（最背面に配置） -->
     <div id="window-drag-area"></div>
 
-    <!-- 上段：タブバー ＆ アプリ操作ボタン -->
     <div class="header-top-row">
-      <!-- タブコンテナ -->
       <div id="tabs-container" class="no-drag">
-        <div id="tabs">
-          <!-- renderer.js から動的にタブ要素が追加されます -->
-        </div>
+        <div id="tabs"></div>
         <button id="newTabBtn" title="新しいタブを追加">+</button>
       </div>
 
-      <!-- Google Chrome風のウィンドウ操作ボタン群 -->
       <div id="window-controls" class="no-drag">
         <button id="win-minimize-btn" class="win-btn" title="最小化">&#128469;&#xFE0E;</button>
         <button id="win-maximize-btn" class="win-btn" title="最大化">&#128470;&#xFE0E;</button>
@@ -35,7 +26,6 @@
       </div>
     </div>
 
-    <!-- 下段：ナビゲーションバー -->
     <div class="header-bottom-row no-drag">
       <div class="nav-buttons">
         <button id="backBtn" class="nav-btn" title="戻る">←</button>
@@ -45,33 +35,36 @@
         <button id="backHistoryBtn" class="nav-btn" title="履歴">🕒</button>
       </div>
 
-      <!-- URL入力欄 -->
       <div class="urlbar-wrapper">
         <input type="text" id="urlbar" placeholder="検索キーワードまたはURLを入力" autocomplete="off">
         <button id="bookmarkBtn" title="このページをブックマーク">★</button>
       </div>
 
       <div class="action-buttons">
+        <button id="pipBtn" class="nav-btn" title="ピクチャー・イン・ピクチャー(YouTube小画面)">📺</button>
         <button id="settingsBtn" class="nav-btn" title="設定を開く">⚙</button>
       </div>
     </div>
 
-    <!-- ブックマークバー領域 -->
-    <div id="bookmarkBar" class="no-drag">
-      <!-- renderer.js から動的にブックマークが挿入されます -->
-    </div>
-
-    <!-- 履歴ポップアップ -->
+    <div id="bookmarkBar" class="no-drag"></div>
     <div id="historyPopup" class="hidden no-drag"></div>
 
   </header>
 
-  <!-- メインコンテンツ領域 -->
   <main id="content-area">
-    <!-- メインプロセスで制御される Web コンテンツがこの位置に重なります -->
+    <div id="pip-control-overlay" class="hidden no-drag">
+      <div id="pip-header">
+        <span class="pip-title">📺 PIP モード</span>
+        <div class="pip-size-controls">
+          <button id="pipSmallBtn" title="小">S</button>
+          <button id="pipMediumBtn" title="中">M</button>
+          <button id="pipLargeBtn" title="大">L</button>
+          <button id="pipCloseBtn" title="閉じる">✕</button>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <!-- 設定サイドバー（右側からスライドイン） -->
   <aside id="settingsSidebar" class="no-drag">
     <div class="sidebar-header">
       <h3>ブラウザ設定</h3>
@@ -125,7 +118,6 @@
         </select>
       </div>
 
-      <!-- フォントサイズ変更の連動用セレクトボックス -->
       <div class="setting-group">
         <label for="fontSizeSelect">UIフォントサイズ</label>
         <select id="fontSizeSelect">
@@ -146,6 +138,6 @@
     </div>
   </aside>
 
-<script src="renderer.js" defer></script>
+  <script src="renderer.js" defer></script>
 </body>
 </html>
