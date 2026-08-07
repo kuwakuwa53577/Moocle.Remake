@@ -3,234 +3,336 @@
 <head>
 <meta charset="UTF-8">
 <title>New Tab</title>
+<link rel="icon" href="assets/icon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icon.ico">
 <style>
-  * { box-sizing:border-box; font-family:"Segoe UI",system-ui,sans-serif; }
+  :root {
+    --text-color: #ffffff;
+    --text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    --glass-bg: rgba(20, 20, 20, 0.6);
+    --glass-hover: rgba(45, 45, 45, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.12);
+  }
+
+  * { box-sizing: border-box; font-family: "Segoe UI", -apple-system, system-ui, sans-serif; }
 
   body {
     margin: 0;
     height: 100vh;
-    overflow: hidden;
-
+    overflow-y: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: var(--text-color);
+    background: transparent !important; 
+    background-size: cover;
+    background-position: center;
+    padding: 40px 0;
+    position: relative;
   }
 
-  .container { text-align:center; }
+  .mcapps-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+
+  .mcapps-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    padding: 11px;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+  }
+
+  .mcapps-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mcapps-btn span {
+    width: 4px;
+    height: 4px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: var(--text-shadow);
+  }
+
+  .mcapps-menu {
+    display: none;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(25px) saturate(160%);
+    -webkit-backdrop-filter: blur(25px) saturate(160%);
+    border-radius: 16px;
+    min-width: 220px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    padding: 8px 0;
+    transform-origin: top right;
+  }
+
+  .mcapps-menu.show {
+    display: block;
+  }
+
+  .menu-item {
+    color: rgba(255, 255, 255, 0.85);
+    padding: 12px 20px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    text-align: left;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .menu-item:hover {
+    background-color: var(--glass-hover);
+    color: #ffffff;
+  }
+
+  .menu-divider {
+    height: 1px;
+    background-color: var(--glass-border);
+    margin: 6px 0;
+  }
+
+  .menu-item.featured {
+    color: #ffb74d; 
+    font-weight: 500;
+  }
+  .menu-item.featured:hover {
+    background-color: rgba(255, 183, 77, 0.15);
+  }
+
+  .container { 
+    text-align: center; 
+    z-index: 10; 
+    width: 100%;
+    max-width: 800px;
+    padding: 0 20px;
+  }
 
   .clock {
-    font-size:72px;
-    font-weight:300;
-    color:#222;
-    letter-spacing:2px;
+    font-size: 72px;
+    font-weight: 100;
+    color: var(--text-color);
+    letter-spacing: -2px;
+    text-shadow: var(--text-shadow);
+    line-height: 1;
   }
 
   .date {
-    margin-top:6px;
-    font-size:14px;
-    color:#666;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: var(--text-shadow);
+    letter-spacing: 0.5px;
   }
 
-  .search-box { margin-top:32px; }
+  .search-container {
+    max-width: 650px;
+    margin: 30px auto 40px auto;
+    display: flex;
+    gap: 10px;
+  }
+
+  #engineSelect {
+    background: var(--glass-bg);
+    color: #fff;
+    border: 1px solid var(--glass-border);
+    padding: 0 15px;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  #engineSelect option {
+    background: #1c1c1c;
+    color: #fff;
+  }
+
+  .search-box {
+    flex-grow: 1;
+  }
 
   input {
-    width:420px;
-    height:42px;
-    border-radius:21px;
-    border:1px solid #ccc;
-    padding:0 18px;
-    font-size:15px;
-    outline:none;
-    background:#fff;
+    width: 100%;
+    height: 50px;
+    border-radius: 25px;
+    border: 1px solid var(--glass-border);
+    padding: 0 24px;
+    font-size: 16px;
+    outline: none;
+    background: var(--glass-bg);
+    color: #fff;
+    backdrop-filter: blur(30px) saturate(160%);
+    -webkit-backdrop-filter: blur(30px) saturate(160%);
+    transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
   }
 
-  input:focus { border-color:#999; }
+  input:focus {
+    background: rgba(255, 255, 255, 0.98);
+    color: #1a1a1a;
+    border-color: #fff;
+    box-shadow: 0 12px 45px rgba(0, 0, 0, 0.5);
+  }
+  
+  input:focus::placeholder { color: #888; }
+  input::placeholder { color: rgba(255, 255, 255, 0.65); }
 
   .footer {
-    margin-top:40px;
-    font-size:12px;
-    color:#aaa;
+    margin-top: 40px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.5px;
   }
-  /* ===== 9点リーダー ===== */
-#appLauncher{
-  position:fixed;
-  top:14px;
-  right:18px;
-  z-index:1000;
-}
-
-/* 9ドット */
-#appBtn{
-  width:28px;
-  height:28px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:3px;
-  cursor:pointer;
-}
-
-#appBtn span{
-  width:6px;
-  height:6px;
-  background:#555;
-  border-radius:50%;
-  display:block;
-}
-
-/* メニュー */
-#appMenu{
-  position:absolute;
-  right:0;
-  top:38px;
-  width:210px;
-  background:#fff;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,.18);
-  padding:10px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  outline:none;
-
-}
-
-.appItem{
-  text-align:center;
-  padding:10px 6px;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:12px;
-  color:#222;
-}
-
-.appItem:hover{
-  background:#f1f3f4;
-}
-
-.icon{
-  width:36px;
-  height:36px;
-  margin:0 auto 6px;
-  border-radius:50%;
-  background:#e8eaed;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-}
-
-/* ===== webviewより前に出す（最重要） ===== */
-#appLauncher{
-  position:fixed;
-  top:14px;
-  right:18px;
-  z-index:2147483647;
-}
-
-#appMenu{
-  z-index:2147483647;
-  pointer-events:auto;
-}
-
-#engineSwitch{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-bottom:16px;
-}
-
-#engineSwitch button{
-  border:none;
-  background:#f1f3f4;
-  padding:6px 14px;
-  border-radius:18px;
-  cursor:pointer;
-  font-size:13px;
-  transition:.15s;
-}
-
-#engineSwitch button.active{
-  background:#d2e3fc;
-  font-weight:600;
-}
-
-#engineSwitch button:hover{
-  background:#e2e6ea;
-}
-
-.hidden{ display:none; }
-
 </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="clock" id="clock">--:--:--</div>
-    <div class="date" id="date"></div>
-    <div id="engineSwitch">
-  <button data-engine="google">Google</button>
-  <button data-engine="bing">Bing</button>
-  <button data-engine="duck">DuckDuckGo</button>
-</div>
-
-    <div class="search-box">
-      <input id="search" placeholder="検索または URL を入力" autofocus />
+  <div class="mcapps-container">
+    <button class="mcapps-btn" id="mcappsBtn" title="MCAPPs">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </button>
+    <div class="mcapps-menu" id="mcappsMenu">
+      <a href="https://nexthub-mono.github.io/Fainder---Project/index2.html" class="menu-item">Fainder Project</a>
+      <a href="https://mikancat10.github.io/Conquer-The-World-hikousiki-wiki/" class="menu-item">世界征服非公式Wiki</a>
+      <div class="menu-divider"></div>
+      <a href="#" class="menu-item featured" id="promoBtn">📢 宣伝</a>
     </div>
-    <div id="topSites"></div>
+  </div>
 
-    <div class="footer">MCBrowser NewTab</div>
+  <div class="container">
+    <div class="clock" id="clock">00:00</div>
+    <div class="date" id="date">----年--月--日 (ー)</div>
+    
+    <div class="search-container">
+      <select id="engineSelect">
+        <option value="google">Google</option>
+        <option value="startpage">Startpage</option>
+        <option value="firefox">Firefox (Google)</option>
+        <option value="brave">Brave Search</option>
+        <option value="vivaldi">Vivaldi (Bing)</option>
+        <option value="coccoc">Cốc Cốc Search</option>
+        <option value="chromium">Chromium (Google)</option>
+        <option value="konqueror">Konqueror (Yahoo)</option>
+        <option value="tor">Tor Browser (DuckDuckGo)</option>
+        <option value="floorp">Floorp (Search)</option>
+        <option value="srware">SRWare Iron (DuckDuckGo)</option>
+        <option value="opera">Opera (Google)</option>
+      </select>
+      <div class="search-box">
+        <input id="search" placeholder="選択したブラウザ方式で検索、またはURLを入力" autofocus />
+      </div>
+    </div>
+
+    <div class="footer">Moocle ポータル</div>
   </div>
 
 <script>
 let engine = localStorage.getItem("searchEngine") || "google";
+const engineSelect = document.getElementById("engineSelect");
 
-/* ボタン表示状態 */
-document.querySelectorAll("#engineSwitch button").forEach(btn=>{
-  if(btn.dataset.engine===engine) btn.classList.add("active");
-
-  btn.onclick=()=>{
-    engine=btn.dataset.engine;
-    localStorage.setItem("searchEngine",engine);
-
-    document.querySelectorAll("#engineSwitch button")
-      .forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
+if(engineSelect) {
+  engineSelect.value = engine;
+  engineSelect.onchange = (e) => {
+    engine = e.target.value;
+    localStorage.setItem("searchEngine", engine);
   };
-});
-
-/* 検索URL生成 */
-function buildSearch(q){
-  if(engine==="bing") return "https://www.bing.com/search?q="+q;
-  if(engine==="duck") return "https://duckduckgo.com/?q="+q;
-  return "https://www.google.com/search?q="+q;
 }
 
-/* Enter検索 */
-document.getElementById("search").addEventListener("keydown",function(e){
-  if(e.key!=="Enter") return;
+function buildSearch(q) {
+  switch (engine) {
+    case "startpage": return "https://www.startpage.com/sp/search?query=" + q;
+    case "brave":     return "https://search.brave.com/search?q=" + q;
+    case "vivaldi":   return "https://bing.com/search?q=" + q;
+    case "coccoc":    return "https://coccoc.com/search?query=" + q;
+    case "konqueror": return "https://search.yahoo.com/search?p=" + q;
+    case "tor":
+    case "srware":    return "https://duckduckgo.com/?q=" + q;
+    case "firefox":
+    case "chromium":
+    case "floorp":
+    case "opera":
+    case "google":
+    default:          return "https://www.google.com/search?q=" + q;
+  }
+}
 
-  let v=e.target.value.trim();
+document.getElementById("search").addEventListener("keydown", function(e) {
+  if(e.key !== "Enter") return;
+  let v = e.target.value.trim();
   if(!v) return;
 
-  if(!v.startsWith("http"))
-    v=buildSearch(encodeURIComponent(v));
-
-  location.href=v;
+  if(!v.startsWith("http://") && !v.startsWith("https://")) {
+    if(v.includes(".") && !v.includes(" ")) {
+      v = "https://" + v;
+    } else {
+      v = buildSearch(encodeURIComponent(v));
+    }
+  }
+  location.href = v;
 });
 
-(function(){
-  function updateClock(){
-    const now=new Date();
-    const h=String(now.getHours()).padStart(2,'0');
-    const m=String(now.getMinutes()).padStart(2,'0');
-    const s=String(now.getSeconds()).padStart(2,'0');
-    document.getElementById("clock").textContent=h+":"+m+":"+s;
-    document.getElementById("date").textContent=
-      now.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric",weekday:"short"});
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById("clock").textContent = h + ":" + m;
+  document.getElementById("date").textContent = now.toLocaleDateString("ja-JP", {
+    year: "numeric", month: "long", day: "numeric", weekday: "short"
+  });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+const mcappsBtn = document.getElementById('mcappsBtn');
+const mcappsMenu = document.getElementById('mcappsMenu');
+const promoBtn = document.getElementById('promoBtn');
+
+mcappsBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  mcappsMenu.classList.toggle('show');
+});
+
+document.addEventListener('click', () => {
+  mcappsMenu.classList.remove('show');
+});
+
+mcappsMenu.addEventListener('click', (e) => {
+  e.stopPropagation();
+});
+
+promoBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  location.href = "https://nexthub-mono.github.io/NextHub/";
+  mcappsMenu.classList.remove('show');
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const parentBg = localStorage.getItem('set_bg');
+  if (parentBg) {
+    document.body.style.backgroundImage = `url(${parentBg})`;
   }
-  updateClock();
-  setInterval(updateClock,1000);
-})();
+});
 </script>
 </body>
 </html>
