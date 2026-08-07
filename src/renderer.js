@@ -1,7 +1,8 @@
-// --- UI要素の取得 ---
+// UI要素の取得
 const urlbar = document.getElementById("urlbar");
 const backBtn = document.getElementById("backBtn");
 const forwardBtn = document.getElementById("forwardBtn");
+const reloadBtn = document.getElementById("reloadBtn");
 const homeBtn = document.getElementById("homeBtn");
 const newTabBtn = document.getElementById("newTabBtn");
 const tabsContainer = document.getElementById("tabs");
@@ -14,7 +15,6 @@ const settingsBtn = document.getElementById("settingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
 const settingsSidebar = document.getElementById("settingsSidebar");
 
-// 設定項目の取得
 const toggleBookmarkBar = document.getElementById("toggleBookmarkBar");
 const toggleTabScroll = document.getElementById("toggleTabScroll");
 const themeSelect = document.getElementById("themeSelect");
@@ -23,14 +23,10 @@ const fontSizeSelect = document.getElementById("fontSizeSelect");
 const searchEngineSelect = document.getElementById("searchEngine");
 const resetSettingsBtn = document.getElementById("resetSettingsBtn");
 
-// 自作ウィンドウ操作ボタン
 const winMinimizeBtn = document.getElementById("win-minimize-btn");
 const winMaximizeBtn = document.getElementById("win-maximize-btn");
 const winCloseBtn = document.getElementById("win-close-btn");
 
-/**
- * 12種類の検索エンジンルーティング
- */
 function executeEngineSearch(engine, queryToken) {
     switch (engine) {
         case "startpage":  return `https://www.startpage.com/sp/search?query=${queryToken}`;
@@ -49,9 +45,6 @@ function executeEngineSearch(engine, queryToken) {
     }
 }
 
-/**
- * 入力された文字列をURLまたは検索クエリに正規化する
- */
 function normalizeInput(input) {
     input = input.trim();
     if (!input) return "";
@@ -68,10 +61,7 @@ function normalizeInput(input) {
     return executeEngineSearch(currentEngine, encodeURIComponent(input));
 }
 
-// ==========================================
-// 1. タブ機能の実装（メインプロセスからの状態同期 ＆ ドラッグ＆ドロップ）
-// ==========================================
-
+// 1. タブ機能
 window.electronAPI.onTabsUpdated((tabsList, activeTabId) => {
     if (!tabsContainer) return;
     tabsContainer.innerHTML = ""; 
@@ -82,6 +72,10 @@ window.electronAPI.onTabsUpdated((tabsList, activeTabId) => {
         tabEl.setAttribute("draggable", "true");
         tabEl.dataset.id = tabData.id;
         
+        tabEl.style.display = "flex";
+        tabEl.style.alignItems = "center";
+        tabEl.style.gap = "6px";
+        
         if (tabData.id === activeTabId && urlbar && !urlbar.matches(':focus')) {
             if (tabData.url.startsWith("file://") && tabData.url.includes("newtab.html")) {
                 urlbar.value = "";
@@ -90,9 +84,28 @@ window.electronAPI.onTabsUpdated((tabsList, activeTabId) => {
             }
         }
 
+        const favIconImg = document.createElement("img");
+        favIconImg.className = "tab-favicon";
+        favIconImg.style.width = "16px";
+        favIconImg.style.height = "16px";
+        favIconImg.style.flexShrink = "0";
+        favIconImg.style.borderRadius = "2px";
+        
+        if (tabData.favicon) {
+            favIconImg.src = tabData.favicon;
+        } else {
+            favIconImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='2' y1='12' x2='22' y2='12'></line><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'></path></svg>";
+        }
+        tabEl.appendChild(favIconImg);
+
         const titleSpan = document.createElement("span");
         titleSpan.className = "tab-title";
         titleSpan.textContent = tabData.title || "新しいタブ";
+        titleSpan.style.flexGrow = "1";
+        titleSpan.style.overflow = "hidden";
+        titleSpan.style.textOverflow = "ellipsis";
+        titleSpan.style.whiteSpace = "nowrap";
+        
         titleSpan.addEventListener("click", () => {
             window.electronAPI.switchTab(tabData.id); 
         });
@@ -108,14 +121,12 @@ window.electronAPI.onTabsUpdated((tabsList, activeTabId) => {
         tabEl.appendChild(titleSpan);
         tabEl.appendChild(closeBtn);
 
-        // タブ自体への右クリックカスタムメニュー
         tabEl.addEventListener("contextmenu", (e) => {
             e.preventDefault();
             e.stopPropagation();
             window.electronAPI.openTabContextMenu(tabData.id);
         });
 
-        // ドラッグ&ドロップイベントの実装
         tabEl.addEventListener('dragstart', (e) => {
             tabEl.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
@@ -146,16 +157,18 @@ tabsContainer?.addEventListener('dragover', (e) => {
     tabsContainer.insertBefore(draggingEl, nextSibling);
 });
 
-// ==========================================
-// 2. ブックマーク機能の実装
-// ==========================================
-
+// 2. ブックマーク機能
 async function updateBookmarkBar() {
     if (!bookmarkBar) return;
     bookmarkBar.innerHTML = "";
     const bookmarks = await window.electronAPI.getBookmarks();
     
+    const seenUrls = new Set();
+    
     bookmarks.forEach(b => {
+        if (!b.url || seenUrls.has(b.url)) return;
+        seenUrls.add(b.url);
+
         const btn = document.createElement("button");
         btn.className = "bookmark-item";
         btn.textContent = b.title || b.url;
@@ -165,33 +178,32 @@ async function updateBookmarkBar() {
             window.electronAPI.navigate(b.url);
         });
         
-        btn.addEventListener("contextmenu", async (e) => {
+        btn.addEventListener("contextmenu", (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
-            // パッケージ環境（.exe）でも確実に動くダイアログを呼び出す
-            const titleText = b.title || b.url || "不明なブックマーク";
-const shouldDelete = await window.electronAPI.confirmDeleteBookmark(String(titleText));
-            
-            if (shouldDelete) {
-                await window.electronAPI.removeBookmark(b.url);
-                updateBookmarkBar();
-            }
+            window.electronAPI.openBookmarkContextMenu({ title: b.title, url: b.url });
         });
         
         bookmarkBar.appendChild(btn);
     });
 }
 
-bookmarkBtn?.addEventListener("click", async () => {
-    const success = await window.electronAPI.addBookmark();
-    if (success) updateBookmarkBar();
-});
+if (!window.bookmarkListenerLoaded) {
+    window.electronAPI.onBookmarkDeleted(() => {
+        updateBookmarkBar();
+    });
+    
+    bookmarkBtn?.addEventListener("click", async () => {
+        const success = await window.electronAPI.addBookmark();
+        if (success) {
+            updateBookmarkBar();
+        }
+    });
 
-// ==========================================
-// 3. 履歴機能の実装
-// ==========================================
+    window.bookmarkListenerLoaded = true;
+}
 
+// 3. 履歴機能
 backHistoryBtn?.addEventListener("click", async (e) => {
     e.stopPropagation(); 
     if (!historyPopup) return;
@@ -227,9 +239,13 @@ document.addEventListener("click", () => {
     historyPopup?.classList.add("hidden");
 });
 
-// ==========================================
 // 4. ナビゲーション基本イベント
-// ==========================================
+const pipBtn = document.getElementById("pipBtn");
+
+pipBtn?.addEventListener("click", async () => {
+  const isOpen = await window.electronAPI.togglePip("https://www.youtube.com");
+  pipBtn.classList.toggle("active", isOpen);
+});
 
 urlbar?.addEventListener("keydown", e => {
     if (e.key !== "Enter") return;
@@ -242,13 +258,50 @@ urlbar?.addEventListener("keydown", e => {
 
 backBtn?.addEventListener("click", () => { window.electronAPI.goBack(); });
 forwardBtn?.addEventListener("click", () => { window.electronAPI.goForward(); });
+reloadBtn?.addEventListener("click", () => { window.electronAPI.reload(); });
 homeBtn?.addEventListener("click", () => { window.electronAPI.goHome(); });
 newTabBtn?.addEventListener("click", () => { window.electronAPI.newTab(); });
 
-// ==========================================
-// 5. 設定サイドバー・カスタム関連のイベント
-// ==========================================
+// PIP 操作イベント
+const pipCloseBtn = document.getElementById("pipCloseBtn");
+const pipSmallBtn = document.getElementById("pipSmallBtn");
+const pipMediumBtn = document.getElementById("pipMediumBtn");
+const pipLargeBtn = document.getElementById("pipLargeBtn");
+const pipHeader = document.getElementById("pip-header");
 
+pipCloseBtn?.addEventListener("click", () => {
+  window.electronAPI.closePip();
+});
+
+pipSmallBtn?.addEventListener("click", () => {
+  window.electronAPI.resizePip(360, 202);
+});
+pipMediumBtn?.addEventListener("click", () => {
+  window.electronAPI.resizePip(540, 304);
+});
+pipLargeBtn?.addEventListener("click", () => {
+  window.electronAPI.resizePip(720, 405);
+});
+
+let isDraggingPip = false;
+let startX, startY;
+
+pipHeader?.addEventListener("mousedown", (e) => {
+  isDraggingPip = true;
+  startX = e.clientX;
+  startY = e.clientY;
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!isDraggingPip) return;
+  window.electronAPI.movePip(e.screenX - 100, e.screenY - 100);
+});
+
+window.addEventListener("mouseup", () => {
+  isDraggingPip = false;
+});
+
+// 5. 設定サイドバー・各種変更イベント
 settingsBtn?.addEventListener("click", () => {
     settingsSidebar?.classList.add("open");
     window.electronAPI.setSidebarStatus(true);
@@ -319,21 +372,17 @@ document.getElementById('bgUpload')?.addEventListener('change', (e) => {
     }
 });
 
-// アプリケーションフレーム（UI外枠）の右クリック制御
 window.addEventListener("contextmenu", (e) => {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.classList.contains("bookmark-item")) return;
     e.preventDefault();
     window.electronAPI.openBrowserUiContextMenu();
 });
 
-// 自作ウィンドウ操作ボタンイベント
 winMinimizeBtn?.addEventListener("click", () => { window.electronAPI.minimize(); });
 winMaximizeBtn?.addEventListener("click", () => { window.electronAPI.maximize(); });
 winCloseBtn?.addEventListener("click", () => { window.electronAPI.close(); });
 
-// ==========================================
-// 7. 起動時初期化
-// ==========================================
+// 6. 起動時初期化
 window.addEventListener("DOMContentLoaded", () => {
     updateBookmarkBar();
     
