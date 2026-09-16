@@ -1,263 +1,351 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=JetBrains+Mono:wght@500&display=swap');
+/* ==========================================================================
+   Monot / monochrome Project Style Theme for MCBrowser
+   ========================================================================== */
 
 :root {
-    --bg: #000000;
-    --surface: #0a0a0a;
-    --border: #1a1a1a;
-    --border-hover: #333333;
-    --text-high: #ffffff;
-    --text-mid: #a0a0a0;
-    --text-low: #4a4a4a;
-    --accent: #ffffff;
+  /* メインカラー定義 */
+  --bg-color: #0b0c0e;
+  --card-bg: #141619;
+  --card-bg-hover: #1a1d21;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.2);
+  
+  /* テキストカラー */
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  /* アクセントカラー */
+  --accent-white: #ffffff;
+  --accent-glow: rgba(255, 255, 255, 0.15);
+  --status-green: #10b981;
+
+  /* その他 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* Base Styles */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg);
-    color: var(--text-high);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 背景装飾：NextHubらしい微細なグリッド */
-.visual-wrapper {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    overflow: hidden;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.grid-overlay {
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(var(--border) 1px, transparent 1px),
-                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
-    opacity: 0.3;
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11, 12, 14, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
 }
 
-.glow-light {
-    position: absolute;
-    top: -10%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60vw;
-    height: 40vh;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-}
-
-/* ナビゲーション */
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 5%;
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 900;
-    font-size: 1.1rem;
-    letter-spacing: -0.5px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.logo span {
-    color: var(--text-low);
-    font-weight: 400;
+.logo-badge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .nav-links {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
-.nav-links a {
-    color: var(--text-mid);
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: 0.2s;
+.nav-item {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
 }
 
-.nav-links a:hover {
-    color: var(--text-high);
+.nav-item:hover, .nav-item.active {
+  color: var(--text-primary);
 }
 
 .nav-demo-link {
-    background: var(--text-high);
-    color: var(--bg) !important;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
 }
 
-/* ヒーロー */
-#hero {
-    padding: 12rem 5% 8rem;
-    text-align: center;
+.nav-demo-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-hover);
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.nav-icon:hover {
+  color: var(--text-primary);
+}
+
+/* Main Container */
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 100px 0 80px;
+  text-align: center;
+}
+
+.hero-container {
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--text-mid);
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    margin-bottom: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
 }
 
-.status-badge .dot {
-    width: 6px;
-    height: 6px;
-    background: #00ff00;
-    border-radius: 50%;
-    box-shadow: 0 0 8px #00ff00;
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--status-green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--status-green);
 }
 
 .hero-title {
-    font-size: clamp(3.5rem, 12vw, 7rem);
-    font-weight: 900;
-    line-height: 0.85;
-    letter-spacing: -0.05em;
-    margin-bottom: 2rem;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
 }
 
-.text-outline {
-    color: transparent;
-    -webkit-text-stroke: 1px var(--text-low);
+.text-accent {
+  background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-sub {
-    font-size: 1.1rem;
-    color: var(--text-mid);
-    max-width: 600px;
-    margin: 0 auto 3rem;
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+  margin-bottom: 40px;
+  line-height: 1.8;
 }
 
 .cta-area {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.cta-btn {
-    padding: 1rem 2rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 4px;
-    transition: 0.3s;
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: var(--transition);
+  cursor: pointer;
 }
 
-.cta-btn.primary {
-    background: var(--text-high);
-    color: var(--bg);
+.btn-primary {
+  background-color: var(--accent-white);
+  color: #000000;
 }
 
-.cta-btn.secondary {
-    border: 1px solid var(--border);
-    color: var(--text-high);
+.btn-primary:hover {
+  background-color: #e5e5e5;
+  transform: translateY(-2px);
 }
 
-.cta-btn.secondary:hover {
-    border-color: var(--text-mid);
-    background: rgba(255,255,255,0.05);
+.btn-secondary {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
-/* カードセクション */
-#features {
-    padding: 4rem 5% 10rem;
-    max-width: 1200px;
-    margin: 0 auto;
+.btn-secondary:hover {
+  background-color: var(--card-bg-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.icon-right {
+  font-size: 0.8rem;
+}
+
+/* Features Section */
+.features-section {
+  padding: 80px 0 120px;
+  border-top: 1px solid var(--border-color);
+}
+
+.section-header {
+  margin-bottom: 48px;
 }
 
 .section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--text-low);
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin-bottom: 2rem;
-    text-align: center;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 500;
 }
 
 .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1px; /* 境界線を細く見せる */
-    background: var(--border);
-    border: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 .feature-card {
-    background: var(--bg);
-    padding: 3rem 2rem;
-    position: relative;
-    transition: 0.3s;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: var(--transition);
 }
 
 .feature-card:hover {
-    background: var(--surface);
+  background-color: var(--card-bg-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
 .card-num {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--text-low);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
 .icon-box {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-high);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--text-primary);
 }
 
 .feature-card h3 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
 .feature-card p {
-    font-size: 0.9rem;
-    color: var(--text-mid);
-    line-height: 1.7;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
-/* フッター */
-footer {
-    padding: 6rem 5%;
-    border-top: 1px solid var(--border);
-    text-align: center;
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border-color);
+  padding: 40px 0;
+  background-color: var(--bg-color);
+}
+
+.footer-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .footer-logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 900;
-    color: var(--text-low);
-    margin-bottom: 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
 }
 
-footer p {
-    font-size: 0.75rem;
-    color: var(--text-low);
+.copyright {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.75rem;
+  }
+  
+  .footer-container {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
 }
