@@ -4,79 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MCBrowser | Beyond the Window</title>
+    <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="site-home">
-    <div class="visual-wrapper">
-        <div class="glow-light"></div>
-        <div class="grid-overlay"></div>
-    </div>
 
-    <nav>
-        <div class="logo">MCBROWSER<span>.mono</span></div>
-        <div class="nav-links">
-            <a href="index.html">Concept</a>
-            <a href="demo.html" class="nav-demo-link">Launch Demo</a>
-            <a href="faq.html">FAQ</a>
-            <a href="https://github.com/mikancat10/MCBrowser" target="_blank" class="github-icon">
-                <i class="fab fa-github"></i>
-            </a>
+    <!-- ナビゲーションバー -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">MCBROWSER<span class="logo-badge">.mono</span></a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-item active">Concept</a>
+                <a href="demo.html" class="nav-item nav-demo-link">Launch Demo</a>
+                <a href="faq.html" class="nav-item">FAQ</a>
+                <a href="https://github.com/mikancat10/MCBrowser" target="_blank" rel="noopener noreferrer" class="nav-icon" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
         </div>
     </nav>
 
-    <main>
-        <section id="hero">
-            <div class="status-badge">
-                <span class="dot"></span> System Operational: v10
-            </div>
-            <h1 class="hero-title">
-                Beyond the<br>
-                <span class="text-outline">Window.</span>
-            </h1>
-            <p class="hero-sub">
-                ウェブは、もっと自由になれる。圧倒的な速度と、直感的なタブ操作が融合した、次世代のブラウジング体験。
-            </p>
-            <div class="cta-area">
-                <a href="demo.html" class="cta-btn primary">
-                    Launch Interactive Demo
-                </a>
-                <a href="#features" class="cta-btn secondary">
-                    View Specifications
-                </a>
+    <main class="main-content">
+        <!-- ヒーローセクション -->
+        <section id="hero" class="hero-section">
+            <div class="hero-container">
+                <div class="status-badge">
+                    <span class="status-dot"></span> System Operational: v10
+                </div>
+                <h1 class="hero-title">
+                    Beyond the<br>
+                    <span class="text-accent">Window.</span>
+                </h1>
+                <p class="hero-sub">
+                    ウェブは、もっと自由になれる。圧倒的な速度と、直感的なタブ操作が融合した、次世代のブラウジング体験。
+                </p>
+                <div class="cta-area">
+                    <a href="demo.html" class="btn btn-primary">
+                        Launch Interactive Demo <i class="fas fa-arrow-right icon-right"></i>
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        View Specifications
+                    </a>
+                </div>
             </div>
         </section>
 
-        <section id="features">
-            <div class="section-label">Core Modules</div>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="card-num">01</div>
-                    <div class="icon-box"><i class="fas fa-wind"></i></div>
-                    <h3>Velocity</h3>
-                    <p>独自のエンジン最適化により、ページ読み込みを劇的に短縮。</p>
+        <!-- 機能・特徴セクション -->
+        <section id="features" class="features-section">
+            <div class="features-container">
+                <div class="section-header">
+                    <span class="section-label">Core Modules</span>
+                    <h2 class="section-title">Designed for Next Browser</h2>
                 </div>
-                <div class="feature-card">
-                    <div class="card-num">02</div>
-                    <div class="icon-box"><i class="fas fa-object-group"></i></div>
-                    <h3>Fluent Tab</h3>
-                    <p>指先に吸い付くような操作性。タブ整理の概念を再定義。</p>
-                </div>
-                <div class="feature-card">
-                    <div class="card-num">03</div>
-                    <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
-                    <h3>Anonymity</h3>
-                    <p>プライバシーをデフォルトで。あなたの足跡を残さない設計。</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-num">01</span>
+                            <div class="icon-box"><i class="fas fa-wind"></i></div>
+                        </div>
+                        <h3>Velocity</h3>
+                        <p>独自のエンジン最適化により、ページ読み込みを劇的に短縮。</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-num">02</span>
+                            <div class="icon-box"><i class="fas fa-object-group"></i></div>
+                        </div>
+                        <h3>Fluent Tab</h3>
+                        <p>指先に吸い付くような操作性。タブ整理の概念を再定義。</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="card-header">
+                            <span class="card-num">03</span>
+                            <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
+                        </div>
+                        <h3>Anonymity</h3>
+                        <p>プライバシーをデフォルトで。あなたの足跡を残さない設計。</p>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <div class="footer-content">
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="footer-container">
             <div class="footer-logo">MCBROWSER</div>
-            <p>&copy; 2026 MCBrowser Project. All Rights Reserved.</p>
+            <p class="copyright">&copy; 2026 MCBrowser Project. All Rights Reserved.</p>
         </div>
     </footer>
+
 </body>
 </html>
